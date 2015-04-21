@@ -13,7 +13,8 @@
   ### Run from command line $ sh plesk_server_backup.sh or run from crontab on a regular occasion
 
 ## ToDo:
-  ###   cli domain filter to pick single domain
+  ##   cli domain filter to pick single domain
+  ##   Script Locking
 
 ### keep me in the background ###
 renice +19 -p $$ &> /dev/null
@@ -25,7 +26,8 @@ fi
   ## Config
     mypath="`pwd`"
     myname="`hostname -s`"
-    targetdir="/home/backups/${myname}"
+    dropbox_path="/"
+    targetdir="/home/backups"
     MYSQL_USER="admin" ## best to use root here to get the complete mysql backups
     MYSQL_PASS="`cat /etc/psa/.psa.shadow`" ## otherwise certain tables are skipped
     MYSQL_BIN_D=`grep MYSQL_BIN_D /etc/psa/psa.conf | awk '{print $2}'`
@@ -87,8 +89,12 @@ fi
       echo "...done"
     done
 
+## Todo: if enabled encrypt files with key
+  ## method tba
+
 ## run the dropbox backup if ~/.dropbox_cred exists
     if [ -f /root/.dropbox_uploader ]; then
-      sh ${mypath}/upload-to-dropbox/dropbox_uploader.sh upload ${targetdir} "Server Backup" && echo "ok" || echo "fail";
+      sh ${mypath}/upload-to-dropbox/dropbox_uploader.sh upload ${targetdir}/core ${dropbox_path};
+      sh ${mypath}/upload-to-dropbox/dropbox_uploader.sh upload ${targetdir}/clients ${dropbox_path};
       rm -Rf ${targetdir};
     fi
