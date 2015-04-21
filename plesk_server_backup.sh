@@ -15,6 +15,7 @@
 ## ToDo:
   ##   cli domain filter to pick single domain
   ##   Script Locking
+  ##   Time Logging
 
 ### keep me in the background ###
 renice +19 -p $$ &> /dev/null
