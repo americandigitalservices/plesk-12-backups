@@ -22,6 +22,19 @@ renice +19 -p $$ &> /dev/null
 if [ -x /usr/bin/ionice ]; then
   ionice -c3 -p $$ &> /dev/null
 fi
+## Script Locker
+mylockfile="${0}.lock"
+if [ -f ${mylockfile} ] ; then
+  if [ "$(ps -p `cat ${mylockfile}` | wc -l)" -gt 1 ]; then
+    echo "$0: Running PID `cat ${mylockfile}`"
+    exit 0
+  else
+    echo " $0: Orphan lock file warning. Lock file deleted."
+    rm ${mylockfile}
+  fi
+fi
+echo $$ > ${mylockfile} #lock
+echo "## Start time: "`date +%Y%m%d%H%M`
 #################################
 
   ## Config
@@ -53,6 +66,7 @@ fi
         mysqldump --add-drop-database --single-transaction -u ${MYSQL_USER} -p${MYSQL_PASS} ${database} > ${this_target_dir}/db/backup_db_${database}.sql && echo "ok" || echo "failed";
         gzip ${this_target_dir}/db/backup_db_${database}.sql;
     done
+
   ## Backup client data files in domain based folders
     rm -Rf ${targetdir}/clients/
     mysql="${MYSQL_BIN_D}/mysql -N -u${MYSQL_USER} -p${MYSQL_PASS} psa"
@@ -97,3 +111,6 @@ fi
       sh ${mypath}/upload-to-dropbox/dropbox_uploader.sh upload ${targetdir}/clients ${dropbox_path};
       rm -Rf ${targetdir};
     fi
+
+echo "## End time: "`date +%Y%m%d%H%M`
+rm ${mylockfile}        #unlock
