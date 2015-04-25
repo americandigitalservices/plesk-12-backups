@@ -52,7 +52,7 @@ fi
     #mysqlcheck -A -o -u ${MYSQL_USER} -p${MYSQL_PASS}
     for database in $(mysql -u ${MYSQL_USER} -p${MYSQL_PASS} -e "SHOW DATABASES WHERE \`Database\` not in (SELECT psa.data_bases.\`name\` FROM psa.data_bases WHERE psa.data_bases.db_server_id = 1)" | grep "^\|" | grep -v Database);
         do echo -n "backing up ${database} ... ";
-        mysqldump --add-drop-database -u ${MYSQL_USER} -p${MYSQL_PASS} ${database} > ${this_target_dir}/db/backup_db_${database}.sql && echo "ok" || echo "failed";
+        mysqldump --add-drop-database --single-transaction -u ${MYSQL_USER} -p${MYSQL_PASS} ${database} > ${this_target_dir}/db/backup_db_${database}.sql && echo "ok" || echo "failed";
         gzip ${this_target_dir}/db/backup_db_${database}.sql;
     done
   ## Backup client data files in domain based folders
