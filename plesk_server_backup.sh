@@ -32,8 +32,6 @@ fi
     MYSQL_USER="admin" ## best to use root here to get the complete mysql backups
     MYSQL_PASS="`cat /etc/psa/.psa.shadow`" ## otherwise certain tables are skipped
     MYSQL_BIN_D=`grep MYSQL_BIN_D /etc/psa/psa.conf | awk '{print $2}'`
-    PRODUCT_ROOT_D=`grep PRODUCT_ROOT_D /etc/psa/psa.conf | awk '{print $2}'`
-    ## timestamp=`date +%Y%m%d%H%M` ## not used for backup to dropbox
 
   ## Pre-clean
     this_target_dir="${targetdir}/core"
@@ -49,7 +47,7 @@ fi
     tar -zcf ${this_target_dir}/backup_qmail.tar.gz /var/qmail/ --exclude "/var/qmail/mailnames"
 
   ##Backup Databases
-    #mysqlcheck -A -o -u ${MYSQL_USER} -p${MYSQL_PASS}
+    #mysqlcheck -A -o -u ${MYSQL_USER} -p${MYSQL_PASS}  ## running separately
     for database in $(mysql -u ${MYSQL_USER} -p${MYSQL_PASS} -e "SHOW DATABASES WHERE \`Database\` not in (SELECT psa.data_bases.\`name\` FROM psa.data_bases WHERE psa.data_bases.db_server_id = 1)" | grep "^\|" | grep -v Database);
         do echo -n "backing up ${database} ... ";
         mysqldump --add-drop-database --single-transaction -u ${MYSQL_USER} -p${MYSQL_PASS} ${database} > ${this_target_dir}/db/backup_db_${database}.sql && echo "ok" || echo "failed";
