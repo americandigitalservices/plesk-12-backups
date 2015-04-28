@@ -42,8 +42,8 @@ echo "## Start time: "`date +%Y%m%d%H%M`
     myname="`hostname -s`"
     dropbox_path="/"
     targetdir="/home/backups"
-    MYSQL_USER="admin" ## best to use root here to get the complete mysql backups
-    MYSQL_PASS="`cat /etc/psa/.psa.shadow`" ## otherwise certain tables are skipped
+    MYSQL_USER="admin"
+    MYSQL_PASS="`cat /etc/psa/.psa.shadow`"
     MYSQL_BIN_D=`grep MYSQL_BIN_D /etc/psa/psa.conf | awk '{print $2}'`
 
   ## Pre-clean
@@ -61,17 +61,19 @@ echo "## Start time: "`date +%Y%m%d%H%M`
 
   ##Backup Databases
     #mysqlcheck -A -o -u ${MYSQL_USER} -p${MYSQL_PASS}  ## running separately
-    for database in $(mysql -u ${MYSQL_USER} -p${MYSQL_PASS} -e "SHOW DATABASES WHERE \`Database\` not in (SELECT psa.data_bases.\`name\` FROM psa.data_bases WHERE psa.data_bases.db_server_id = 1)" | grep "^\|" | grep -v Database);
+    for database in $(${MYSQL_BIN_D}/mysql -u ${MYSQL_USER} -p${MYSQL_PASS} -e "SHOW DATABASES WHERE \`Database\` not in (SELECT psa.data_bases.\`name\` FROM psa.data_bases WHERE psa.data_bases.db_server_id = 1)" | grep "^\|" | grep -v Database);
         do echo -n "backing up ${database} ... ";
         mysqldump --add-drop-database --single-transaction -u ${MYSQL_USER} -p${MYSQL_PASS} ${database} > ${this_target_dir}/db/backup_db_${database}.sql && echo "ok" || echo "failed";
         gzip ${this_target_dir}/db/backup_db_${database}.sql;
     done
 
   ## Backup client data files in domain based folders
-    rm -Rf ${targetdir}/clients/
+    my_target_dir="${targetdir}/clients"
+    rm -Rf ${my_target_dir};
+
     mysql="${MYSQL_BIN_D}/mysql -N -u${MYSQL_USER} -p${MYSQL_PASS} psa"
     cat ${mypath}/plesk_backup_query.sql | $mysql | while read user domain dbs paths fwds
-      do this_target_dir="${targetdir}/clients/${user}/${domain}"
+      do this_target_dir="${my_target_dir}/${user}/${domain}"
       echo -n "backing up ${user} ${domain} to ${this_target_dir} ...";
       mkdir -p ${this_target_dir};
 
