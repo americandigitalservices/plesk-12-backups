@@ -38,7 +38,7 @@ echo "## Start time: "`date +%Y%m%d%H%M`
 #################################
 
   ## Config
-    mypath="`pwd`"
+    mypath="${0%/*}"
     myname="`hostname -s`"
     dropbox_path="/"
     CONFIG_FILE="/root/.nonplesk_config"
