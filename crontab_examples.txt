@@ -1,0 +1,5 @@
+## run path 
+0       3       *       *       *       /root/backeruper/plesk_server_backup.sh >> /root/backeruper/logs 2>&1
+
+0       3       *       *       *       /root/backeruper/nonplesk_vhosts_server_backup.sh >> /root/backeruper/logs 2>&1
+
