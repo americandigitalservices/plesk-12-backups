@@ -116,6 +116,10 @@ echo "## Start time: "`date +%Y%m%d%H%M`
     	tar -zcf ${this_target_dir}/backup_vhost_$folder.tar.gz /var/www/vhosts/$folder && echo "ok" || echo "failed";
     done
 
+## encrypt
+    # tar -cvz /<path> | gpg --encrypt --recipient <keyID> > /<backup-path>/backup_`date +%d_%m_%Y`.tar.gz.gpg
+    # tar -cz $path | gpg --encrypt --recipient $keyID -o $dest_file
+
 ## run the dropbox backup if ~/.dropbox_cred exists
     if [ -f /root/.dropbox_uploader ]; then
       sh ${mypath}/upload-to-dropbox/dropbox_uploader.sh upload ${targetdir}/core ${dropbox_path};
