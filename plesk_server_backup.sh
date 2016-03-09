@@ -72,7 +72,7 @@ echo "## Start time: "`date +%Y%m%d%H%M`
     rm -Rf ${my_target_dir};
 
     mysql="${MYSQL_BIN_D}/mysql -N -u${MYSQL_USER} -p${MYSQL_PASS} psa"
-    cat ${mypath}/plesk_backup_query.sql | $mysql | while read user domain dbs paths fwds
+    cat ${mypath}/plesk_server_backup.sql | $mysql | while read user domain dbs paths fwds
       do this_target_dir="${my_target_dir}/${user}/${domain}"
       echo -n "backing up ${user} ${domain} to ${this_target_dir} ...";
       mkdir -p ${this_target_dir};
