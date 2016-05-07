@@ -1,5 +1,5 @@
 #!/bin/sh
-## 2015 Backup Script
+## 2016 Backup Script
   ## Autobackup from a linux server using /var/www/vhosts/__domain__/*
   ## to a local data dir and then to Dropbox (replacing dropbox data each time)
   ## GPL by Dan Horning of American Digital Services - americandigitalservices.com
@@ -14,8 +14,7 @@
 
 ## ToDo:
   ##   cli domain filter to pick single domain
-  ##   Script Locking
-  ##   Time Logging
+  ##   notify on failure to email or snmp ??? 
 
 ### keep me in the background ###
 renice +19 -p $$ &> /dev/null
@@ -88,6 +87,9 @@ echo "## Start time: "`date +%Y%m%d%H%M`
     rm -Rf ${this_target_dir};
     mkdir -p ${this_target_dir};
 
+    echo -n "backing up zextras completely... ";
+    tar -zcf ${this_target_dir}/backup_zimbra_zextras.tar.gz /opt/zimbra/backup/ && echo "ok" || echo "failed";
+
     # will need to call script in http://wiki.zimbra.com/wiki/Open_Source_Edition_Backup_Procedure#Backup_Shell_Script_with_Compressed_.26_Encrypted_Archives
     # probally the LVM one http://www.nervous.it/lang/en-us/2007/01/zimbra-lvm-backup-with-duplicity-volume/
 
@@ -115,10 +117,6 @@ echo "## Start time: "`date +%Y%m%d%H%M`
     	do echo -n "backing up $folder ... ";
     	tar -zcf ${this_target_dir}/backup_vhost_$folder.tar.gz /var/www/vhosts/$folder && echo "ok" || echo "failed";
     done
-
-## encrypt
-    # tar -cvz /<path> | gpg --encrypt --recipient <keyID> > /<backup-path>/backup_`date +%d_%m_%Y`.tar.gz.gpg
-    # tar -cz $path | gpg --encrypt --recipient $keyID -o $dest_file
 
 ## run the dropbox backup if ~/.dropbox_cred exists
     if [ -f /root/.dropbox_uploader ]; then
